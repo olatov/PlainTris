@@ -30,8 +30,8 @@ jobs:
     #   run: sed -i 's/<base href="\/" \/>/<base href="\/plaintris\/" \/>/g' release/wwwroot/index.html
       
     # changes for segmentCount value in 404.html as appropriate for Github Pages
-    - name: Set segmentCount in 404.html
-      run: sed -i 's/var segmentCount = 0;/var segmentCount = 1;/g' release/wwwroot/404.html
+    #- name: Set segmentCount in 404.html
+    #  run: sed -i 's/var segmentCount = 0;/var segmentCount = 1;/g' release/wwwroot/404.html
       
     - name: Fix service-worker-assets.js hashes
       working-directory: release/wwwroot
