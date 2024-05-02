@@ -41,6 +41,8 @@ jobs:
         run: dotnet restore src/PlainTris.BlazorWasmUI/PlainTris.BlazorWasmUI.csproj
       - name: Build & publish project
         run: dotnet publish src/PlainTris.BlazorWasmUI/PlainTris.BlazorWasmUI.csproj -c Release --output release --nologo
+      - name: Adjust base-tag in index.html from / to /PlainTris/ so it works in github pages
+        run: sed -i 's/<base href="\/" \/>/<base href="\/PlainTris\/" \/>/g' release/wwwroot/index.html
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
