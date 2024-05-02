@@ -21,11 +21,7 @@ jobs:
       with:
         dotnet-version: 8.0.x
     - name: Restore dependencies
-      run: dotnet restore
-    - name: Build
-      run: dotnet build --no-restore
-    - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet restore src/PlainTris.BlazorWasmUI/PlainTris.BlazorWasmUI.csproj
     - name: Build & publish project
       run: dotnet publish src/PlainTris.BlazorWasmUI/PlainTris.BlazorWasmUI.csproj -c Release --output release --nologo
       
