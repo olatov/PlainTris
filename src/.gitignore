@@ -1,0 +1,22 @@
+
+# .NET
+# https://www.toptal.com/developers/gitignore/api/net
+
+[Bb]in/
+[Oo]bj/
+[Bb]uild/
+[Pp]ackages/
+*.sln
+*.suo
+*.user
+*.useros
+*.lock.json
+project.assets.json
+project.nuget.g.props
+project.nuget.g.targets
+*.vspscc
+*.vssscc
+
+.vs
+.vscode
+.mono

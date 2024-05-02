@@ -1,0 +1,32 @@
+﻿@inherits LayoutComponentBase
+
+<MudThemeProvider IsDarkMode="true" Theme="_theme" />
+<MudDialogProvider DisableBackdropClick="true" />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudMainContent Class="pt-4">
+        <MudContainer MaxWidth="MaxWidth.ExtraSmall">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+
+    private MudTheme _theme = new()
+    {
+        Palette = new PaletteLight()
+        {
+            Primary = Colors.Blue.Default,
+            Secondary = Colors.Green.Accent4,
+            AppbarBackground = Colors.Blue.Default,
+        },
+    };
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+}

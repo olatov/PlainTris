@@ -1,0 +1,187 @@
+﻿@page "/"
+
+@inject IDialogService _dialogService
+@inject IJSRuntime _js
+
+<style>
+    .tile {
+        width: 3.8vh;
+        height: 3.8vh;
+    }
+
+    .outlined {
+        border-style: solid;
+        border-width: 1px;
+        border-color: #2a2a2a;
+    }
+</style>
+
+<PageTitle>Index</PageTitle>
+
+<MudPaper>
+    <MudGrid Justify="Justify.SpaceEvenly">
+        <MudItem>
+            <MudText>Level: @_game.Level</MudText>
+        </MudItem>
+        <MudItem>
+            <MudText>Lines: @_game.Lines</MudText>
+        </MudItem>
+        <MudItem>
+            <MudText>Score: @_game.Score</MudText>
+        </MudItem>
+    </MudGrid>
+
+    <MudGrid Justify="Justify.Center" Class="mt-2">
+        <MudItem>
+            <MudPaper Elevation="5">
+                    @if (_game.Height > 0)
+                    {
+                        foreach (var rowIndex in Enumerable.Range(0, _game.Height))
+                        {
+                            <MudGrid Justify="Justify.SpaceBetween" Spacing="0">
+                                @foreach (var colIndex in Enumerable.Range(0, _game.Width))
+                                {
+                                    <MudItem>
+                                        @{
+                                            var color = _game.GetColor(rowIndex, colIndex);
+                                            var style = $"background-color: {color};";
+                                        }
+
+                                        @if (!string.IsNullOrEmpty(color))
+                                        {
+                                            <MudPaper class="tile" Elevation="15" Style="@style" Square="true" />
+                                        }
+                                        else
+                                        {
+                                            <div class="tile outlined"></div>
+                                        }
+                                    </MudItem>
+                                }
+                            </MudGrid>
+                        }
+                    }
+            </MudPaper>
+        </MudItem>
+        <MudItem>
+            <MudGrid>
+                <MudItem>
+                    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.ArrowBack" OnClick="@OnLeftClick" />
+                </MudItem>
+                <MudItem>
+                    <MudFab Color="Color.Secondary" StartIcon="@Icons.Material.Filled.ArrowDownward" OnClick="@OnDropClick" />
+                </MudItem>
+                <MudItem>
+                    <MudFab Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.RotateRight" OnClick="@OnRotateClick" />
+                </MudItem>
+                <MudItem>
+                    <MudFab Color="Color.Primary" StartIcon="@Icons.Material.Filled.ArrowForward" OnClick="@OnRightClick" />
+                </MudItem>
+            </MudGrid>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+<div @ref="_focusTrap" tabindex="0" @onkeydown="HandleKeyDown" />
+
+@code {
+    private const int InitialInterval = 750;
+
+    private void HandleKeyDown(KeyboardEventArgs e)
+    {
+        switch (e.Key)
+        {
+            case "ArrowLeft":
+                OnLeftClick();
+                break;
+
+            case "ArrowRight":
+                OnRightClick();
+                break;
+
+            case "ArrowUp":
+                OnRotateClick();
+                break;
+
+            case "ArrowDown":
+            case " ":
+                OnDropClick();
+                break;
+        };
+    }
+
+    private Game _game = new();
+
+    private System.Timers.Timer _timer = new System.Timers.Timer
+    {
+        AutoReset = true,
+    };
+
+    private ElementReference _focusTrap;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        _timer.Elapsed += async (o, e) => await OnTickAsync();
+
+        _game.NewPieceCreated += () => {
+            _timer.Interval = InitialInterval / (1 + 0.5 * _game.Level);
+        };
+
+        Reset();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        await _focusTrap.FocusAsync();
+    }
+
+    private void OnRotateClick()
+    {
+        _game.RotateRight();
+    }
+
+    private void OnLeftClick()
+    {
+        _game.MoveLeft();
+    }
+
+    private void OnRightClick()
+    {
+        _game.MoveRight();
+    }
+
+    private void OnDropClick()
+    {
+        _timer.Stop();
+        _timer.Interval = 10;
+        _timer.Start();
+    }
+
+    private async Task OnTickAsync()
+    {
+        _game.Tick();
+        if (_game.IsGameOver)
+        {
+            _timer.Stop();
+            StateHasChanged();
+            await _dialogService.ShowMessageBox("Well done!!", "Game over", "OK");
+            Reset();
+            return;
+        }
+
+        StateHasChanged();
+    }
+
+    private void Reset()
+    {
+        _game.Reset();
+
+        _timer.Interval = InitialInterval / (1 + 0.5 * _game.Level);
+        _timer.Start();
+
+        StateHasChanged();
+    }
+}
